@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         }
     };
 
-    //Comienzo de solicitud GET
+    //Comienzo de lógica para la solicitud GET
     function obtenerDatosUser() {
 
         let endpoint = "users";  
@@ -43,9 +43,10 @@ let BotonAgregar=document.getElementById("btnGet1");
 BotonAgregar.addEventListener("click", ()=>{
     obtenerDatosUser()
 });
+//Fin de lógica de la solicitud GET
 
 
-//Comienzo de solicitud POST
+//Comienzo de lógica para la solicitud POST
 let InputNombre=document.getElementById("inputPostNombre");
 let InputApellido=document.getElementById("inputPostApellido");
 let BotonNuevosDatos=document.getElementById("btnPost");
@@ -84,7 +85,65 @@ function CrearNuevoUser(NuevoUsuario) {
 
 BotonNuevosDatos.addEventListener("click", ()=>{
     CrearNuevoUser()
-})
+}) 
+//Fin de lógica para la solicitud POST
+
+//Comienzo de lógica para la solicitud PUT
+let InputIDPut=document.getElementById("inputPutId");
+let BotonPut=document.getElementById("btnPut");
+let InputPutNombre=document.getElementById("inputPutNombre");
+let InputPutApellido=document.getElementById("inputPutApellido");
+let ModalPut=document.getElementById("dataModal");
+let BotonGuardarModal = document.getElementById("btnSendChanges");
+
+function HabilitarBotonModificar(){ //Función para habilitar el boton de modificar datos al tener datos ingresados
+    BotonPut.disabled= !(InputIDPut.value.trim())
+};
+
+InputIDPut.addEventListener("input", HabilitarBotonModificar); 
+
+function HabilitarBotonGuardarPUT(){
+    BotonGuardarModal.disabled= !(InputPutNombre.value.trim() && InputPutApellido.value.trim());
+};
+
+InputPutNombre.addEventListener("input", HabilitarBotonGuardarPUT);
+InputPutApellido.addEventListener("input", HabilitarBotonGuardarPUT);
+
+//Evento para abrir el modal al hacer click en el boton de "modificar"
+BotonPut.addEventListener("click", ()=>{
+    ModalPut.classList.add('show');
+    ModalPut.style.display = 'block';
+    
+});
+
+//Función para realizar la solicitud put y modificar los datos
+function ModificarDatosUser(){
+    let endpoint = "users";
+    let id = InputIDPut.value.trim();  
+    let MockAPI=`https://654fd8ff358230d8f0cdc1a2.mockapi.io/${endpoint}/${id}`;
+
+    let DatosModificar= {
+        name: InputPutNombre.value.trim(),
+        lastname: InputPutApellido.value.trim()
+    };
+
+    fetch(MockAPI, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(DatosModificar)
+    })
+        .then(res => res.json())
+        .then(data => {
+            MostrarDatosPizarra(data)
+            ModalPut.style.display = 'none';
+            ModalPut.classList.remove('show');
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+BotonGuardarModal.addEventListener("click", ModificarDatosUser);
 
 }); //Final Evento DOM
 
