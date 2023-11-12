@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', ()=>{
-    let BotonAgregar=document.getElementById("btnGet1");
-
-    function MostrarDatosPizarra(data){
+    
+    function MostrarDatosPizarra(data){ //Función para mostrar los datos solicitados en el panel lateral
         let PizarraDatos=document.getElementById("results");
         PizarraDatos.innerHTML="";
 
@@ -9,7 +8,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
             data = [data];
         }
 
-        if (data.lenght===0){
+        if (data.length===0){
             PizarraDatos.innerHTML="El Usuario no existe o no ha sido encontrado";
         } else {
             data.forEach(usuario => {
@@ -18,7 +17,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 `;
             });
         }
-    }
+    };
 
     //Comienzo de solicitud GET
     function obtenerDatosUser() {
@@ -40,33 +39,52 @@ document.addEventListener('DOMContentLoaded', ()=>{
             .catch(error => console.error('Error:', error));
     };
 
+let BotonAgregar=document.getElementById("btnGet1");
 BotonAgregar.addEventListener("click", ()=>{
     obtenerDatosUser()
-})
+});
 
 
 //Comienzo de solicitud POST
-let NuevoUsuario= {
-    name: "Nombre",
-    lastname:"Apellido"
+let InputNombre=document.getElementById("inputPostNombre");
+let InputApellido=document.getElementById("inputPostApellido");
+let BotonNuevosDatos=document.getElementById("btnPost");
+
+function HabilitarBoton(){
+    BotonNuevosDatos.disabled= !(InputNombre.value.trim() && InputApellido.value.trim())
 };
 
+InputNombre.addEventListener("input", HabilitarBoton);
+InputApellido.addEventListener("input", HabilitarBoton);
+
 function CrearNuevoUser(NuevoUsuario) {
-    fetch(`https://654fd8ff358230d8f0cdc1a2.mockapi.io`, {
+    let endpoint = "users";  
+    let MockAPI=`https://654fd8ff358230d8f0cdc1a2.mockapi.io/${endpoint}`;
+
+    let DatosNuevoUser= {
+        name: InputNombre.value.trim(),
+        lastname: InputApellido.value.trim()
+    };
+
+    BotonNuevosDatos.disabled=!(DatosNuevoUser.name && DatosNuevoUser.lastname);
+
+    fetch(MockAPI, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(NuevoUsuario)
+        body: JSON.stringify(DatosNuevoUser)
     })
         .then(res => res.json())
         .then(data => {
-            console.log('Usuario agregado:', data);
+            MostrarDatosPizarra(data)
         })
         .catch(error => console.error('Error:', error));
 };
 
-
+BotonNuevosDatos.addEventListener("click", ()=>{
+    CrearNuevoUser()
+})
 
 }); //Final Evento DOM
 
